@@ -65,10 +65,6 @@
     <div class="text-muted" style="text-align: center;">© 2024 The Starscouts, Equestria.dev Developers, All rights reserved.<br>All data is processed on-device, period.<br><br>Update: June 19th, 2024<br>Expirity: July 3nd, 2024</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <div id="cheat" style="position: fixed; inset: 0; border: 5px solid red; pointer-events: none; display: none;">
-        <span style="position: fixed; top: 0; left: 0; color: black; background-color: red;">Cheating detected, you will not be able to share your score.</span>
-    </div>
-
     <!--suppress JSCheckFunctionSignatures -->
     <script>
         if (new Date().getTime() >= 1719964800000) {
@@ -180,22 +176,6 @@
                 document.getElementById("main-icon").className = "bi-award";
                 document.getElementById("title").innerText = score.toFixed(2) + "%";
                 document.getElementById("header").innerText = "Results";
-            }
-
-            function _cheat() {
-                document.getElementById("cheat").style.display = "";
-                localStorage.setItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==", btoa(crypto.getRandomValues(new Uint8Array(32))));
-            }
-
-            setInterval(() => {
-                let s1 = new Date().getTime();
-                debugger;
-                let s2 = new Date().getTime();
-                if (s2 - s1 > 10) _cheat();
-            });
-
-            if (localStorage.getItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==")) {
-                _cheat();
             }
         }
     </script>
