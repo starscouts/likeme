@@ -65,12 +65,14 @@
     <div class="text-muted" style="text-align: center;">© 2024 The Starscouts, Equestria.dev Developers, All rights reserved.<br>All data is processed on-device, period.<br><br>Update: June 19th, 2024</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <div id="cheat" style="position: fixed; inset: 0; border: 5px solid red; pointer-events: none;">
+    <div id="cheat" style="position: fixed; inset: 0; border: 5px solid red; pointer-events: none; display: none;">
         <span style="position: fixed; top: 0; left: 0; color: black; background-color: red;">Cheating detected, you will not be able to share your score.</span>
     </div>
 
     <!--suppress JSCheckFunctionSignatures -->
     <script>
+        window.questionStack = [];
+
         window.onload = () => {
             (async () => {
                 window.questions = (await (await fetch("./questions.txt")).text()).trim().split("\n").map(i => {
@@ -144,6 +146,7 @@
             }
 
             let question = questions[i];
+            questionStack.push(i);
             document.getElementById("questions").style.display = "";
             document.getElementById("privacy").style.display = "none";
             document.getElementById("main-icon").className = "bi-ui-radios";
@@ -153,8 +156,12 @@
             <span class="btn btn-primary" onclick="count${k === 0 ? "Correct" : "Incorrect"}(); displayQuestion(${i + 1});">${j}</span>
             `)).join("");
             document.getElementById("back-btn").onclick = () => {
+                if (questionStack.length < 2) return;
                 answers.pop();
-                displayQuestion(i - 1);
+                questionStack.pop();
+                let i = questionStack[questionStack.length - 1];
+                questionStack.pop();
+                displayQuestion(i);
             }
         }
 
