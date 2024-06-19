@@ -62,7 +62,7 @@
             </div>
         </div>
     </div>
-    <div class="text-muted" style="text-align: center;">© 2024 The Starscouts, Equestria.dev Developers, All rights reserved.<br>All data is processed on-device, period.<br><br>Update: June 19th, 2024</div>
+    <div class="text-muted" style="text-align: center;">© 2024 The Starscouts, Equestria.dev Developers, All rights reserved.<br>All data is processed on-device, period.<br><br>Update: June 19th, 2024<br>Expirity: July 3nd, 2024</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
     <div id="cheat" style="position: fixed; inset: 0; border: 5px solid red; pointer-events: none; display: none;">
@@ -71,127 +71,132 @@
 
     <!--suppress JSCheckFunctionSignatures -->
     <script>
-        window.questionStack = [];
+        if (new Date().getTime() >= 1719964800000) {
+            document.head.innerHTML = "";
+            document.body.innerHTML = "Expired :(";
+        } else {
+            window.questionStack = [];
 
-        window.onload = () => {
-            (async () => {
-                window.questions = (await (await fetch("./questions.txt")).text()).trim().split("\n").map(i => {
-                    i = i.split("|");
-                    return {
-                        depends: !i[0].startsWith("-") ? parseInt(i[0]) - 1 : null,
-                        name: i[1],
-                        answers: i.slice(2)
-                    }
-                });
+            window.onload = () => {
+                (async () => {
+                    window.questions = (await (await fetch("./questions.txt")).text()).trim().split("\n").map(i => {
+                        i = i.split("|");
+                        return {
+                            depends: !i[0].startsWith("-") ? parseInt(i[0]) - 1 : null,
+                            name: i[1],
+                            answers: i.slice(2)
+                        }
+                    });
 
-                window.answers = [];
+                    window.answers = [];
 
-                document.getElementById("start-btn").classList.remove("disabled");
-            })();
-        }
-
-        function privacy() {
-            document.getElementById("home").style.display = "none";
-            document.getElementById("privacy").style.display = "";
-            document.getElementById("main-icon").className = "bi-shield";
-            document.getElementById("title").innerText = "A word about privacy";
-        }
-
-        function start() {
-            displayQuestion(0);
-        }
-
-        function shuffle(array) {
-            let currentIndex = array.length, temporaryValue, randomIndex;
-
-            while (0 !== currentIndex) {
-                randomIndex = Math.floor(Math.random() * currentIndex);
-                currentIndex -= 1;
-
-                temporaryValue = array[currentIndex];
-                array[currentIndex] = array[randomIndex];
-                array[randomIndex] = temporaryValue;
+                    document.getElementById("start-btn").classList.remove("disabled");
+                })();
             }
 
-            return array;
-        }
-
-        function countCorrect() {
-            window.answers.push(true);
-        }
-
-        function countIncorrect() {
-            window.answers.push(false);
-        }
-
-        function displayQuestion(i) {
-            if (i >= questions.length) {
-                displayResults();
-                return;
+            function privacy() {
+                document.getElementById("home").style.display = "none";
+                document.getElementById("privacy").style.display = "";
+                document.getElementById("main-icon").className = "bi-shield";
+                document.getElementById("title").innerText = "A word about privacy";
             }
 
-            if (questions[i].depends !== null && !answers[questions[i].depends]) {
-                while (questions[i].depends !== null && !answers[questions[i].depends]) {
-                    countIncorrect();
-                    i++;
+            function start() {
+                displayQuestion(0);
+            }
 
-                    if (i >= questions.length) {
-                        displayResults();
-                        return;
-                    }
+            function shuffle(array) {
+                let currentIndex = array.length, temporaryValue, randomIndex;
+
+                while (0 !== currentIndex) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex -= 1;
+
+                    temporaryValue = array[currentIndex];
+                    array[currentIndex] = array[randomIndex];
+                    array[randomIndex] = temporaryValue;
                 }
 
-                displayQuestion(i);
-                return;
+                return array;
             }
 
-            let question = questions[i];
-            questionStack.push(i);
-            document.getElementById("questions").style.display = "";
-            document.getElementById("privacy").style.display = "none";
-            document.getElementById("main-icon").className = "bi-ui-radios";
-            document.getElementById("title").innerText = question.name;
-            document.getElementById("header").innerText = "Question " + (i + 1) + "/" + questions.length;
-            document.getElementById("answers").innerHTML = shuffle(question.answers.map((j, k) => `
+            function countCorrect() {
+                window.answers.push(true);
+            }
+
+            function countIncorrect() {
+                window.answers.push(false);
+            }
+
+            function displayQuestion(i) {
+                if (i >= questions.length) {
+                    displayResults();
+                    return;
+                }
+
+                if (questions[i].depends !== null && !answers[questions[i].depends]) {
+                    while (questions[i].depends !== null && !answers[questions[i].depends]) {
+                        countIncorrect();
+                        i++;
+
+                        if (i >= questions.length) {
+                            displayResults();
+                            return;
+                        }
+                    }
+
+                    displayQuestion(i);
+                    return;
+                }
+
+                let question = questions[i];
+                questionStack.push(i);
+                document.getElementById("questions").style.display = "";
+                document.getElementById("privacy").style.display = "none";
+                document.getElementById("main-icon").className = "bi-ui-radios";
+                document.getElementById("title").innerText = question.name;
+                document.getElementById("header").innerText = "Question " + (i + 1) + "/" + questions.length;
+                document.getElementById("answers").innerHTML = shuffle(question.answers.map((j, k) => `
             <span class="btn btn-primary" onclick="count${k === 0 ? "Correct" : "Incorrect"}(); displayQuestion(${i + 1});">${j}</span>
             `)).join("");
-            document.getElementById("back-btn").onclick = () => {
-                if (questionStack.length < 2) return;
-                answers.pop();
-                questionStack.pop();
-                let i = questionStack[questionStack.length - 1];
-                questionStack.pop();
-                displayQuestion(i);
+                document.getElementById("back-btn").onclick = () => {
+                    if (questionStack.length < 2) return;
+                    answers.pop();
+                    questionStack.pop();
+                    let i = questionStack[questionStack.length - 1];
+                    questionStack.pop();
+                    displayQuestion(i);
+                }
             }
-        }
 
-        function displayResults() {
-            let score = (answers.filter(i => i === true).length / answers.length) * 100;
-            let data = JSON.parse(localStorage.getItem("scores") ?? "[]");
-            data.push(score);
-            localStorage.setItem("scores", JSON.stringify(data));
+            function displayResults() {
+                let score = (answers.filter(i => i === true).length / answers.length) * 100;
+                let data = JSON.parse(localStorage.getItem("scores") ?? "[]");
+                data.push(score);
+                localStorage.setItem("scores", JSON.stringify(data));
 
-            document.getElementById("questions").style.display = "none";
-            document.getElementById("results").style.display = "";
-            document.getElementById("main-icon").className = "bi-award";
-            document.getElementById("title").innerText = score.toFixed(2) + "%";
-            document.getElementById("header").innerText = "Results";
-        }
+                document.getElementById("questions").style.display = "none";
+                document.getElementById("results").style.display = "";
+                document.getElementById("main-icon").className = "bi-award";
+                document.getElementById("title").innerText = score.toFixed(2) + "%";
+                document.getElementById("header").innerText = "Results";
+            }
 
-        function _cheat() {
-            document.getElementById("cheat").style.display = "";
-            localStorage.setItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==", btoa(crypto.getRandomValues(new Uint8Array(32))));
-        }
+            function _cheat() {
+                document.getElementById("cheat").style.display = "";
+                localStorage.setItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==", btoa(crypto.getRandomValues(new Uint8Array(32))));
+            }
 
-        setInterval(() => {
-            let s1 = new Date().getTime();
-            debugger;
-            let s2 = new Date().getTime();
-            if (s2 - s1 > 10) _cheat();
-        });
+            setInterval(() => {
+                let s1 = new Date().getTime();
+                debugger;
+                let s2 = new Date().getTime();
+                if (s2 - s1 > 10) _cheat();
+            });
 
-        if (localStorage.getItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==")) {
-            _cheat();
+            if (localStorage.getItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==")) {
+                _cheat();
+            }
         }
     </script>
 </body>
