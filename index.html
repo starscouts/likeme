@@ -48,7 +48,8 @@
                     </div>
                 </div>
                 <div id="questions" style="display: none;">
-                    <div id="answers" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;"></div>
+                    <p id="answers" style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;"></p>
+                    <span class="btn btn-outline-primary" style="width: 100%;" id="back-btn">Back</span>
                 </div>
                 <div id="results" style="display: none;">
                     <p>That's how similar to Starscouts you are. But don't fret! Any score is good. What matters is that you are
@@ -64,31 +65,22 @@
     <div class="text-muted" style="text-align: center;">© 2024 The Starscouts, Equestria.dev Developers, All rights reserved.<br>All data is processed on-device, period.<br><br>Update: June 19th, 2024</div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
+    <div id="cheat" style="position: fixed; inset: 0; border: 5px solid red; pointer-events: none;">
+        <span style="position: fixed; top: 0; left: 0; color: black; background-color: red;">Cheating detected, you will not be able to share your score.</span>
+    </div>
+
     <!--suppress JSCheckFunctionSignatures -->
     <script>
-        window.enableErrorChecks = true;
-
-        window.onerror = (_1, _2, _3, _4, _5) => {
-            console.error(_1, _2, _3, _4, _5);
-            document.head.innerText = "";
-            document.body.innerText = "An error has occurred while loading the page. Error code: 0xFFBADBAD";
-        }
-
         window.onload = () => {
             (async () => {
-                try {
-                    window.questions = (await (await fetch("./questions.txt")).text()).trim().split("\n").map(i => {
-                        i = i.split("|");
-                        return {
-                            depends: !i[0].startsWith("-") ? parseInt(i[0]) - 1 : null,
-                            name: i[1],
-                            answers: i.slice(2)
-                        }
-                    });
-                } catch (e) {
-                    document.head.innerText = "";
-                    document.body.innerText = "An error has occurred while loading the page. Error code: 0xBAD0DA7A";
-                }
+                window.questions = (await (await fetch("./questions.txt")).text()).trim().split("\n").map(i => {
+                    i = i.split("|");
+                    return {
+                        depends: !i[0].startsWith("-") ? parseInt(i[0]) - 1 : null,
+                        name: i[1],
+                        answers: i.slice(2)
+                    }
+                });
 
                 window.answers = [];
 
@@ -160,6 +152,10 @@
             document.getElementById("answers").innerHTML = shuffle(question.answers.map((j, k) => `
             <span class="btn btn-primary" onclick="count${k === 0 ? "Correct" : "Incorrect"}(); displayQuestion(${i + 1});">${j}</span>
             `)).join("");
+            document.getElementById("back-btn").onclick = () => {
+                answers.pop();
+                displayQuestion(i - 1);
+            }
         }
 
         function displayResults() {
@@ -176,14 +172,11 @@
         }
 
         function _cheat() {
-            if (location.hostname === "localhost" && enableErrorChecks) return;
-            document.head.innerText = "";
-            document.body.innerText = "An error has occurred while loading the page. Error code: 0x0C4EA7E6";
+            document.getElementById("cheat").style.display = "";
             localStorage.setItem("WW91IGFyZSBhIGNoZWF0ZXIuCg==", btoa(crypto.getRandomValues(new Uint8Array(32))));
         }
 
         setInterval(() => {
-            if (location.hostname === "localhost" && enableErrorChecks) return;
             let s1 = new Date().getTime();
             debugger;
             let s2 = new Date().getTime();
